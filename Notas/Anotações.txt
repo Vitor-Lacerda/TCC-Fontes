@@ -1,6 +1,14 @@
+28/07 -
+
 Treinei uma rede que classifica pedaços pequenos(61x61) da imagem em vaga ou não vaga usando o histograma dos valores LBP.
 Parece funcionar até bem - mas tem alguns problemas.
 
 Primeiro - em imagens com tamanho diferente - um pedaço 61x61 tem uma textura muito diferente e isso atrapalha a classificação da rede. Aí eu acho que a solução é usar um tamanho relativo. Ao invés de 61x61 eu pego pedaços que tem 10% do valor da imagem por exemplo. Aí o histograma também precisa ser relativo. Mostrar a % que cada valor LBP ocupa da tela, ao invés do valor absoluto.
 
 Segundo - Acho que eu treinei com a imagem rgb. Depois que fazer a coisa do histograma tem que treinar de novo tomando esse cuidado.
+
+
+29/07 - 
+
+Parece que com 10% da dimensão da imagem e porcentagem do histograma ficou pior.
+
