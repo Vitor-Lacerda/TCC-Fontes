@@ -1,6 +1,7 @@
 figure(1);
-img = imread('Vazio3.png');
+img = imread('Vazio2.png');
 img = rgb2gray(img);
+imResult = zeros(size(img));
 imshow(img);
 rect1 = getrect;
 rect2 = getrect;
@@ -17,22 +18,21 @@ ocupacao2 = [];
 x = rect1(1);
 y = rect1(2);
 altura = rect1(4);
+cont = 200;
 
 while(x  < (rect1(1) + rect1(3)) - largura1)
     
     limiteX = x+largura1;
-    secaoImg = img(y:y+altura,x:x+largura1); 
+    secaoImg = img(y:y+altura,x:x+largura1);
     coluna = extraiCaracteristicas(secaoImg);
-    classe = RedeSecoes(coluna);
+    classe = Rede3Classes(coluna);
+    [m, i] = max(classe);
+    ocupacao1 = [ocupacao1, i];
     
-    if(classe(1) >= 0.6)
-       ocupacao1 = [ocupacao1, 1]; 
-    else
-       ocupacao1 = [ocupacao1, 0];  
-    end
+    imResult(y:y+altura,x:x+largura1,i) = 255;
     
     
-    x = x + largura1;
+     x = x + largura1;
 end
 
 
@@ -44,22 +44,25 @@ while(x < (rect2(1) + rect2(3)) - largura2)
     
     secaoImg = img(y:y+altura,x:x+largura2); 
     coluna = extraiCaracteristicas(secaoImg);
-    classe = RedeSecoes(coluna);
+    classe = Rede3Classes(coluna);
     
-    if(classe(1) >= 0.6)
-       ocupacao2 = [ocupacao2, 1]; 
-    else
-       ocupacao2 = [ocupacao2, 0];  
-    end
+    [m, i] = max(classe);
+    ocupacao2 = [ocupacao2, i];
     
+    imResult(y:y+altura,x:x+largura1,i) = 255;
     
-    x = x + largura2;
+     x = x + largura2;
 end
 
 figure
-plot(ocupacao1);
+bar(ocupacao1);
 figure
-plot(ocupacao2);
+bar(ocupacao2);
+% figure
+% imshow(imResult);
+% imResult = uint8(imResult);
+figure
+imshow(imResult);
 
 
 

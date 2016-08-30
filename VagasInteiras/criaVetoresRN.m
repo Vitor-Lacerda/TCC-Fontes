@@ -10,11 +10,11 @@ for i=1:length(arquivos)
    coluna = extraiCaracteristicas(img);
    if(entrada == -1)
       entrada = coluna;
-      saida = zeros(2,1);
+      saida = zeros(3,1);
       saida(categoria) = 1;
    else
       entrada = [entrada, coluna]; 
-      colSaida = zeros(2,1);
+      colSaida = zeros(3,1);
       colSaida(categoria) = 1;
       saida = [saida, colSaida];
    end
