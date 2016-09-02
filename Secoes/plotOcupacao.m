@@ -13,11 +13,10 @@ rect2 = getrect;
 
 
 
-for k = 1: nFrames
+for k = 1:33: nFrames
    figure(1);
    quadro = read(videoObj, k);
-   quadro = rgb2gray(quadro);
+   quadroPlot = plotOcupacaoImagem(quadro, rect1, rect2);
+   imshow(quadroPlot);
    
-   
-    
 end

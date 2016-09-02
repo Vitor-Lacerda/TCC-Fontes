@@ -1,4 +1,4 @@
-img = imread('MeioCheio2.png');
+img = imread('MeioCheio5.png');
 imshow(img);
 rect1 = getrect;
 rect1 = floor(rect1);
@@ -9,7 +9,7 @@ altura = rect1(4);
 x = rect1(1);
 y = rect1(2);
 
-cont = 65;
+cont = 100;
 
 while(x  < (rect1(1) + rect1(3)) - largura)
     

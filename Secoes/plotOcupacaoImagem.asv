@@ -30,15 +30,9 @@ while(x  < (rect1(1) + rect1(3)) - largura1)
     coluna = extraiCaracteristicasSecoes(secaoImg);
     classe = RedeNeural(coluna);
     
-    
-    
-    if(classe(1) > 0.8)
-        ocupacao1 = [ocupacao1, 1];
-        i=1;
-    else
-        ocupacao1 = [ocupacao1, 2];
-        i=2;
-    end
+    if(classe(1) > 0.8){
+        ocupacao1 = [ocua
+    }
     
         
     
@@ -59,13 +53,8 @@ while(x < (rect2(1) + rect2(3)) - largura2)
     coluna = extraiCaracteristicasSecoes(secaoImg);
     classe = RedeNeural(coluna);
     
-    if(classe(1) > 0.6)
-        ocupacao2 = [ocupacao2, 1];
-        i =1;
-    else
-        ocupacao2 = [ocupacao2, 2];
-        i=2;
-    end
+    [m, i] = max(classe);
+    ocupacao2 = [ocupacao2, i];
     
     imResult(y:y+altura,x:x+largura1,i) = 255;
     
