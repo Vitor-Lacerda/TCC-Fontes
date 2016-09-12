@@ -33,45 +33,52 @@
 %    end
 % end
 
-figure(1)
-[n,c] = hist(double(homoCarro1));s
-bar(c,n,'EdgeColor', 'r', 'FaceColor','none');
-hold on
-[n,c] = hist(double(homoCarro2));
-bar(c,n,'EdgeColor', 'g', 'FaceColor','none');
-hold on
-[n,c] = hist(double(homoVaga1));
-bar(c,n,'EdgeColor', 'b', 'FaceColor','none');
-hold on
-[n,c] = hist(double(homoVaga2));
-bar(c,n,'EdgeColor', 'y', 'FaceColor','none');
-hold on
+% figure(1)
+% [n,c] = hist(double(homoCarro1));s
+% bar(c,n,'EdgeColor', 'r', 'FaceColor','none');
+% hold on
+% [n,c] = hist(double(homoCarro2));
+% bar(c,n,'EdgeColor', 'g', 'FaceColor','none');
+% hold on
+% [n,c] = hist(double(homoVaga1));
+% bar(c,n,'EdgeColor', 'b', 'FaceColor','none');
+% hold on
+% [n,c] = hist(double(homoVaga2));
+% bar(c,n,'EdgeColor', 'y', 'FaceColor','none');
+% hold on
 
-
-% enderecoCarros = 'C:\Users\Avell G1711 NEW\Documents\MATLAB\Imagens\SecoesColoridas\Carros\*.png';
-% enderecoVagas = 'C:\Users\Avell G1711 NEW\Documents\MATLAB\Imagens\SecoesColoridas\Vagas\*.png';
+% 
+% enderecoCarros = 'C:\Users\Avell G1711 NEW\Documents\MATLAB\Imagens\VagasColoridas\Ocupadas\*.png';
+% enderecoVagas = 'C:\Users\Avell G1711 NEW\Documents\MATLAB\Imagens\VagasColoridas\Vazias\*.png';
 % 
 % carros = dir(enderecoCarros);
 % vagas = dir(enderecoVagas);
 % 
-% cbVagas = [];
-% crVagas = [];
+% contrasteVagas = [];
+% correlacaoVagas = [];
+% energiaVagas = [];
+% homoVagas = [];
 % 
 % for i=1:length(vagas)
 %     img = imread(vagas(i).name);
-%     img = rgb2ycbcr(img);
-%     cbVagas = [cbVagas, mean(mean(img(:,:,2)))];
-%     crVagas = [crVagas, mean(mean(img(:,:,3)))];
+%     imgGrey = rgb2gray(img);
+%     glcm = graycomatrix(imgGrey);
+%     stats = graycoprops(glcm,'all');
+%     contrasteVagas = [contrasteVagas, stats.Contrast];
+%     correlacaoVagas = [correlacaoVagas, stats.Correlation];
+%     energiaVagas = [energiaVagas, stats.Energy];
+%     homoVagas = [homoVagas, stats.Homogeneity];
+%     
 % end
-% 
-% 
-% figure(1)
-% [n,c] = hist(crCarros);
-% bar(c,n,'EdgeColor', 'b', 'FaceColor','none');
-% hold on
-% [n,c] = hist(crVagas);
-% bar(c,n,'EdgeColor', 'r', 'FaceColor','none');
-% hold off
+
+
+figure(1)
+[n,c] = hist(homoCarros);
+bar(c,n,'EdgeColor', 'b', 'FaceColor','none');
+hold on
+[n,c] = hist(homoVagas);
+bar(c,n,'EdgeColor', 'r', 'FaceColor','none');
+hold off
 
 
 

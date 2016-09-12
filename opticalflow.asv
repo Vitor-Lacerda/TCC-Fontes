@@ -1,0 +1,18 @@
+videoReader = VideoReader('Vazio.mp4');
+converter = vision.ImageDataTypeConverter; 
+opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1);
+
+
+nFrames = videoObj.NumberOfFrames;
+
+for k=1: nFrames
+    frame = step(videoReader);
+    im = step(converter, frame);
+
+    of = step(opticalFlow, im);
+    out = of;
+    step(videoPlayer, out);
+end
+
+release(videoPlayer);
+release(videoReader);
