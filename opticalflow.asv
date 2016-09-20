@@ -1,17 +1,31 @@
-videoReader = VideoReader('Vazio.mp4');
+videoReader = vision.VideoFileReader('Vazio.mp4','ImageColorSpace','Intensity','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter; 
-opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1);
+opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,  'Method', 'Lucas-Kanade', 'OutputValue', 'Horizontal and vertical components in complex form');
+% % shapeInserter = vision.ShapeInserter('Shape','Lines','BorderColor','Custom', 'CustomBorderColor', 0);
+videoPlayer = vision.VideoPlayer('Name','Motion Vector');
+
+cont = 0;
+params.minMajorAxis = 100;
+params.maxMajorAxis = 400;
+params.numBest = 1;
 
 
-nFrames = videoObj.NumberOfFrames;
-
-for k=1: nFrames
+while ~isDone(videoReader)
     frame = step(videoReader);
     im = step(converter, frame);
+    components = step(opticalFlow, im);
+    
+    mags = abs(components);
+    mags = mags .* 255;
+    mags = uint8(mags);
+    mags = threshBinary(mags, 220, 0, 255);
+    
+    out = zeros(
 
-    of = step(opticalFlow, im);
-    out = of;
-    step(videoPlayer, out);
+
+    step(videoPlayer, mags);
+    cont = cont + 1;
+        
 end
 
 release(videoPlayer);

@@ -22,10 +22,10 @@
 
 
 
-img = imread('Vazio3.png');
+img = imread('Momento3.png');
 imshow(img);
 
-cont = 8;
+cont = 300;
 
 while(1)
    
