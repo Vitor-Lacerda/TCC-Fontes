@@ -1,19 +1,19 @@
-function plotOcupacao
-    videoObj = VideoReader('Vazio.mp4');
+function quadroPlot = plotOcupacao(i,rect1,rect2)
+%     videoObj = VideoReader('Vazio.mp4');
 %     videoPlayer = vision.VideoPlayer('Name','Estacionamento');
 
-    nFrames = videoObj.NumberOfFrames;
+%     nFrames = videoObj.NumberOfFrames;
 
     figure(1);
-    i = read(videoObj, 1);
+%     i = read(videoObj, 1);
 %     i = step(videoObj);
-    imshow(i);
-    rect1 = getrect;
-    rect2 = getrect;
-
-    rect1 = floor(rect1);
-    rect2 = floor(rect2);
-    
+%     imshow(i);
+%     rect1 = getrect;
+%     rect2 = getrect;
+% 
+%     rect1 = floor(rect1);
+%     rect2 = floor(rect2);
+%     
     largura1 = floor(rect1(3)/30);
     largura2 = floor(rect2(3)/30);
     
@@ -41,18 +41,18 @@ function plotOcupacao
         x = x + largura2;
     end
 
-    for k = 1:33:nFrames
-        figure(1);
-        quadro = read(videoObj, k);
-        quadroPlot = percorreQuadro(quadro, secoes1);
+%     for k = 1:33:nFrames
+%         figure(1);
+%         quadro = read(videoObj, k);
+        quadroPlot = percorreQuadro(i, secoes1);
         quadroPlot = percorreQuadro(quadroPlot, secoes2);
-        imshow(quadroPlot);
+%         imshow(quadroPlot);
         
-    end
+%     end
     
         
-    release(videoPlayer);
-    release(videoReader);
+%     release(videoPlayer);
+%     release(videoReader);
 end
 
 

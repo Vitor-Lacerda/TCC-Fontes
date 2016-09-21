@@ -4,10 +4,9 @@ opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,  'Method', 'Lucas-Kan
 % % shapeInserter = vision.ShapeInserter('Shape','Lines','BorderColor','Custom', 'CustomBorderColor', 0);
 videoPlayer = vision.VideoPlayer('Name','Motion Vector');
 
-cont = 0;
-params.minMajorAxis = 100;
-params.maxMajorAxis = 400;
-params.numBest = 1;
+
+temMovimento = 0;
+areaMovimentoAtual = [0,0,0,0];
 
 
 while ~isDone(videoReader)
@@ -19,12 +18,27 @@ while ~isDone(videoReader)
     mags = mags .* 255;
     mags = uint8(mags);
     mags = threshBinary(mags, 220, 0, 255);
+   
+    [l1, l2, c1, c2, centro] = achaAreaInteresse(mags,100, 100);
+
+    out = zeros(size(mags,1), size(mags,2), 3);
+    out(:,:,1) = mags;
+    out(:,:,2) = mags;
+    out(:,:,3) = mags;
     
-    out = zeros(
-
-
-    step(videoPlayer, mags);
-    cont = cont + 1;
+    if(centro(1) > 0 && centro(2) > 0)
+        out(l1:l2,c1:c2, 1) = 255;
+        temMovimento = 1;
+    else
+        
+     
+        imgArea = out(l1:l2,c1:c2, 1:3);
+        imshow(imgArea);
+        
+        temMovimento = 0;
+    end
+    
+    step(videoPlayer, out);
         
 end
 
