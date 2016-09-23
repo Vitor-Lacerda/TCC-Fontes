@@ -74,8 +74,8 @@ function quadroPlot = percorreQuadro(quadro, secoes)
             c = ajusteGauss(c, secoes, i);
 %             [m,ind] = max(c);
             secoes(i,1) = checaClasse(c);
-            quadroPlot(s(3):s(3)+s(5), s(2):s(2)+s(4),secoes(i,1)) = 255;
-%           quadroPlot(s(3):s(3)+s(5), s(2):s(2)+s(4),2) = 255*c(2);
+            quadroPlot(s(3):s(3)+s(5), s(2):s(2)+s(4),1) = 255*c(1);
+            quadroPlot(s(3):s(3)+s(5), s(2):s(2)+s(4),2) = 255*c(2);
             quadroPlot(s(3):s(3)+s(5),s(2),1:3) = 0;
             quadroPlot(s(3),s(2):s(2)+s(4),1:3) = 0;
 
