@@ -1,4 +1,10 @@
 %Inicializacao%
+
+%Sistema de votação - a cada intervalo de tempo vê as classificações e
+%estabiliza%
+
+
+
 videoReader = vision.VideoFileReader('Vazio.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
@@ -58,11 +64,11 @@ while ~isDone(videoReader)
    %redor%
    %l1 = linha inicial, l2 = linha final, c1 = coluna inicial, c2 = coluna
    %final%
-    [l1, l2, c1, c2, centro] = achaAreaInteresse(mags,100, 100);
+    [l1, l2, c1, c2, centro] = achaAreaInteresse(mags,100, 250);
     
     %Se tiver retornado alguma coisa%
     if(centro(1) > 0 && centro(2) > 0)
-        %Se nao tiver movimento comeca 1%
+        %Se nao tiver movimento comeca um%
         if(temMovimento == 0)
             inicioMovimento = [l1,l2,c1,c2,centro(1), centro(2)];
         end
@@ -72,29 +78,32 @@ while ~isDone(videoReader)
         temMovimento = 1;
     else %caso nao encontre movimento, se ja tinha antes%
         if(temMovimento ~= 0)
-            
-            
-%             %Se comecou o movimento em uma das areas%
-%             if(dentroRetangulo(rect1, inicioMovimento(5), inicioMovimento(6)) ~= 0)
-%                 novaSecao = [2, inicioMovimento(3), rect1(2), inicioMovimento(4)-inicioMovimento(3), rect1(4)];
+
+            %Se comecou o movimento em uma das areas%
+            if(dentroRetangulo(rect1, inicioMovimento(5), inicioMovimento(6)) ~= 0)
+%                 novaSecao = [2, inicioMovimento(3), rect1(2), inicioMovimento(4)-inicioMovimento(3), rect1(4),0];
 %                 secoes1 = atualizaVetorSecoes(secoes1, novaSecao);
-%             end
-%             if(dentroRetangulo(rect2, inicioMovimento(5), inicioMovimento(6)) ~= 0)
-%                 novaSecao = [2, inicioMovimento(3), rect2(2), inicioMovimento(4)-inicioMovimento(3), rect2(4)];
+                  secoes1 = marcaMovimento(secoes1, inicioMovimento, -1);
+            end
+            if(dentroRetangulo(rect2, inicioMovimento(5), inicioMovimento(6)) ~= 0)
+%                 novaSecao = [2, inicioMovimento(3), rect2(2), inicioMovimento(4)-inicioMovimento(3), rect2(4),0];
 %                 secoes2 = atualizaVetorSecoes(secoes2, novaSecao);
-%             end
-%             
-%             %Se terminou o movimento em uma das areas%
-%             if(dentroRetangulo(rect1, finalMovimento(5), finalMovimento(6)) ~= 0)
-%                 novaSecao = [2, finalMovimento(3), rect1(2), finalMovimento(4)-finalMovimento(3), rect1(4)];
+                  secoes2 = marcaMovimento(secoes2, inicioMovimento, -1);
+            end
+            
+            %Se terminou o movimento em uma das areas%
+            if(dentroRetangulo(rect1, finalMovimento(5), finalMovimento(6)) ~= 0)
+%                 novaSecao = [2, finalMovimento(3), rect1(2), finalMovimento(4)-finalMovimento(3), rect1(4),0];
 %                 secoes1 = atualizaVetorSecoes(secoes1, novaSecao);
-%             end
-%             if(dentroRetangulo(rect2, finalMovimento(5), finalMovimento(6)) ~= 0)
-%                 novaSecao = [2, finalMovimento(3), rect2(2), finalMovimento(4)-finalMovimento(3), rect2(4)];
+                  secoes1 = marcaMovimento(secoes1, finalMovimento, 1);
+            end
+            if(dentroRetangulo(rect2, finalMovimento(5), finalMovimento(6)) ~= 0)
+%                 novaSecao = [2, finalMovimento(3), rect2(2), finalMovimento(4)-finalMovimento(3), rect2(4),0];
 %                 secoes2 = atualizaVetorSecoes(secoes2, novaSecao);
-%             end
-%             
-%             [secoes1, secoes2] = ocupacaoSecoes(quadro, secoes1, secoes2);
+                  secoes2 = marcaMovimento(secoes2, finalMovimento, 1);
+            end
+            
+            [secoes1, secoes2] = ocupacaoSecoes(quadro, secoes1, secoes2);
             
         end
         

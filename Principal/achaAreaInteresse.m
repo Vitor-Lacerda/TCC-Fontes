@@ -17,6 +17,7 @@ v = double(v);
 % distanciaMaxima = 100;
 
 if(size(l,1) > minimoValores)
+    
     magTotal = sum(v);
     lTotal = sum(l .* v);
     cTotal = sum(c .* v);

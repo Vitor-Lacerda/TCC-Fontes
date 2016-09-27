@@ -49,6 +49,10 @@ function nsecoes = percorreQuadro(quadro, secoes)
             s = secoes(i,:);
             c = classeSecao(quadro, secoes, i);
             c = ajusteGauss(c, secoes, i);
+            
+            c(1) = c(1) + (0.2 * secoes(i,6));
+            c(2) = c(2) - (0.2 * secoes(i,6));
+            
             secoes(i,1) = checaClasse(c);
 %             quadroPlot(s(3):s(3)+s(5), s(2):s(2)+s(4),1) = 255*c(1);
 %             quadroPlot(s(3):s(3)+s(5), s(2):s(2)+s(4),2) = 255*c(2);

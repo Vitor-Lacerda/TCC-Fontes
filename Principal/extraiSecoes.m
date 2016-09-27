@@ -11,7 +11,7 @@ function secoes = extraiSecoes( imagem, rect, numero)
     secoes = [];
 
     while(x  < (rect(1) + rect(3)) - largura)
-        novaSecao = [2,x,y,largura, altura];
+        novaSecao = [2,x,y,largura, altura, 0];
         secoes = [secoes;novaSecao]; 
         x = x + largura;
     end
