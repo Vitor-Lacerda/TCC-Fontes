@@ -1,9 +1,5 @@
 %Inicializacao%
 
-%Sistema de votação - a cada intervalo de tempo vê as classificações e
-%estabiliza%
-
-
 
 videoReader = vision.VideoFileReader('Vazio.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
@@ -83,24 +79,24 @@ while ~isDone(videoReader)
             if(dentroRetangulo(rect1, inicioMovimento(5), inicioMovimento(6)) ~= 0)
 %                 novaSecao = [2, inicioMovimento(3), rect1(2), inicioMovimento(4)-inicioMovimento(3), rect1(4),0];
 %                 secoes1 = atualizaVetorSecoes(secoes1, novaSecao);
-                  secoes1 = marcaMovimento(secoes1, inicioMovimento, -1);
+                  secoes1 = marcaMovimento(secoes1, inicioMovimento);
             end
             if(dentroRetangulo(rect2, inicioMovimento(5), inicioMovimento(6)) ~= 0)
 %                 novaSecao = [2, inicioMovimento(3), rect2(2), inicioMovimento(4)-inicioMovimento(3), rect2(4),0];
 %                 secoes2 = atualizaVetorSecoes(secoes2, novaSecao);
-                  secoes2 = marcaMovimento(secoes2, inicioMovimento, -1);
+                  secoes2 = marcaMovimento(secoes2, inicioMovimento);
             end
             
             %Se terminou o movimento em uma das areas%
             if(dentroRetangulo(rect1, finalMovimento(5), finalMovimento(6)) ~= 0)
 %                 novaSecao = [2, finalMovimento(3), rect1(2), finalMovimento(4)-finalMovimento(3), rect1(4),0];
 %                 secoes1 = atualizaVetorSecoes(secoes1, novaSecao);
-                  secoes1 = marcaMovimento(secoes1, finalMovimento, 1);
+                  secoes1 = marcaMovimento(secoes1, finalMovimento);
             end
             if(dentroRetangulo(rect2, finalMovimento(5), finalMovimento(6)) ~= 0)
 %                 novaSecao = [2, finalMovimento(3), rect2(2), finalMovimento(4)-finalMovimento(3), rect2(4),0];
 %                 secoes2 = atualizaVetorSecoes(secoes2, novaSecao);
-                  secoes2 = marcaMovimento(secoes2, finalMovimento, 1);
+                  secoes2 = marcaMovimento(secoes2, finalMovimento);
             end
             
             [secoes1, secoes2] = ocupacaoSecoes(quadro, secoes1, secoes2);

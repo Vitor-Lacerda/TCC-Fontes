@@ -11,7 +11,9 @@ function secoes = extraiSecoes( imagem, rect, numero)
     secoes = [];
 
     while(x  < (rect(1) + rect(3)) - largura)
-        novaSecao = [2,x,y,largura, altura, 0];
+        novaSecao = [2,x,y,largura, altura, 2, 0, 0];
+        %%novaSecao = [classe, x,y,largura,altura, classe anterior, votos,
+        %%estavel]
         secoes = [secoes;novaSecao]; 
         x = x + largura;
     end
