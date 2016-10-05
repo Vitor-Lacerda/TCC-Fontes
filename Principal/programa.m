@@ -28,8 +28,9 @@ secoes2 = extraiSecoes(i, rect2, 30);
 %%%Comeca a tocar o video%%%
 contQuadro = 1;
 temMovimento = 0;
-inicioMovimento = [0,0,0,0,0,0];
-finalMovimento = [0,0,0,0,0,0];
+inicioMovimentos = [];
+finalMovimentos = [];
+
 
 while ~isDone(videoReader)
    quadro = step(videoReader);
@@ -60,44 +61,56 @@ while ~isDone(videoReader)
    %redor%
    %l1 = linha inicial, l2 = linha final, c1 = coluna inicial, c2 = coluna
    %final%
-    [l1, l2, c1, c2, centro] = achaAreaInteresse(mags,100, 250);
+   
+    areasInteresse = achaAreaInteresseMult(mags,100, 250,250);
+ 
     
     %Se tiver retornado alguma coisa%
-    if(centro(1) > 0 && centro(2) > 0)
+%     if(centro(1) > 0 && centro(2) > 0)
+    if(size(areasInteresse,1) >= size(finalMovimentos,1))
         %Se nao tiver movimento comeca um%
-        if(temMovimento == 0)
-            inicioMovimento = [l1,l2,c1,c2,centro(1), centro(2)];
+        if(size(areasInteresse,1) > size(finalMovimentos,1))
+%             inicioMovimentos = [l1,l2,c1,c2,centro(1), centro(2)];
+            inicioMovimentos = areasInteresse;
         end
         %Atualiza o fim do movimento%
-        finalMovimento = [l1,l2,c1,c2,centro(1),centro(2)];
-        out(l1:l2,c1:c2, 3) = 255;
+%         finalMovimentos = [l1,l2,c1,c2,centro(1),centro(2)];
+        
+%         out(l1:l2,c1:c2, 3) = 255;
+        for aa = 1:size(areasInteresse,1)
+            lim = areasInteresse(aa,:);
+            out(lim(1):lim(2), lim(3):lim(4), 3) = 255;
+        end
+
         temMovimento = 1;
     else %caso nao encontre movimento, se ja tinha antes%
         if(temMovimento ~= 0)
-
+          for(k = 1: size(inicioMovimentos,1))
             %Se comecou o movimento em uma das areas%
-            if(dentroRetangulo(rect1, inicioMovimento(5), inicioMovimento(6)) ~= 0)
+            if(dentroRetangulo(rect1, inicioMovimentos(k,5), inicioMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, inicioMovimento(3), rect1(2), inicioMovimento(4)-inicioMovimento(3), rect1(4),0];
 %                 secoes1 = atualizaVetorSecoes(secoes1, novaSecao);
-                  secoes1 = marcaMovimento(secoes1, inicioMovimento);
+                  secoes1 = marcaMovimento(secoes1, inicioMovimentos(k,:));
             end
-            if(dentroRetangulo(rect2, inicioMovimento(5), inicioMovimento(6)) ~= 0)
+            if(dentroRetangulo(rect2, inicioMovimentos(k,5), inicioMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, inicioMovimento(3), rect2(2), inicioMovimento(4)-inicioMovimento(3), rect2(4),0];
 %                 secoes2 = atualizaVetorSecoes(secoes2, novaSecao);
-                  secoes2 = marcaMovimento(secoes2, inicioMovimento);
+                  secoes2 = marcaMovimento(secoes2, inicioMovimentos(k,:));
             end
-            
+          end
+          for(k = 1: size(finalMovimentos,1)) 
             %Se terminou o movimento em uma das areas%
-            if(dentroRetangulo(rect1, finalMovimento(5), finalMovimento(6)) ~= 0)
+            if(dentroRetangulo(rect1, finalMovimentos(k,5), finalMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, finalMovimento(3), rect1(2), finalMovimento(4)-finalMovimento(3), rect1(4),0];
 %                 secoes1 = atualizaVetorSecoes(secoes1, novaSecao);
-                  secoes1 = marcaMovimento(secoes1, finalMovimento);
+                  secoes1 = marcaMovimento(secoes1, finalMovimentos(k,:));
             end
-            if(dentroRetangulo(rect2, finalMovimento(5), finalMovimento(6)) ~= 0)
+            if(dentroRetangulo(rect2, finalMovimentos(k,5), finalMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, finalMovimento(3), rect2(2), finalMovimento(4)-finalMovimento(3), rect2(4),0];
 %                 secoes2 = atualizaVetorSecoes(secoes2, novaSecao);
-                  secoes2 = marcaMovimento(secoes2, finalMovimento);
+                  secoes2 = marcaMovimento(secoes2, finalMovimentos(k,:));
             end
+          end
             
             [secoes1, secoes2] = ocupacaoSecoes(quadro, secoes1, secoes2);
             
@@ -105,8 +118,8 @@ while ~isDone(videoReader)
         
         temMovimento = 0;
     end
+    finalMovimentos = areasInteresse;
 
-   
    step(videoPlayer, out);
 end
 

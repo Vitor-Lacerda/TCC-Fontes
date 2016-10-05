@@ -1,15 +1,15 @@
-function achaAreaInteresseMult
+function limitesAreas =  achaAreaInteresseMult(g, distanciaMaxima, minimoImagem, minimoArea)
 
-    i = imread('Frame.PNG');
-    g = rgb2gray(i);
+%     i = imread('Poucos.PNG');
+%     g = rgb2gray(i);
 
     [l,c,v] = find(g);
 
     v = double(v);
-
-    distanciaMaxima = 100;
-    minimoImagem = 100;
-    minimoArea = 100;
+% 
+%     distanciaMaxima = 100;
+%     minimoImagem = 100;
+%     minimoArea = 100;
 
     areas = [];
     areasFim = [];
@@ -67,16 +67,29 @@ function achaAreaInteresseMult
 
 
     end
+    
+    limitesAreas = [];
+    
     for aa = 1:size(areas,1)
-        nzero = naoZeros(areas(aa,:));
+         nzero = naoZeros(areas(aa,:));
         if(size(nzero,2) > minimoArea)
             limArea = pegaLimitesArea(areas(aa,:), l, c);
-            i(limArea(1):limArea(2), limArea(3):limArea(4), 1) = 255;
+            limArea(end+1:end+2) = areasCentros(aa,:);
+            limitesAreas = [limitesAreas;limArea];
         end
-        
     end
-
-    imshow(i);
+    
+    
+%     for aa = 1:size(areas,1)
+%         nzero = naoZeros(areas(aa,:));
+%         if(size(nzero,2) > minimoArea)
+%             limArea = pegaLimitesArea(areas(aa,:), l, c);
+%             i(limArea(1):limArea(2), limArea(3):limArea(4), 1) = 255;
+%         end
+%         
+%     end
+% 
+%     imshow(i);
     
 end
 
@@ -97,7 +110,7 @@ function centro = achaCentro(area, linha, coluna, valor)
 end
 
 function nzero = naoZeros(vet)
-    [z,zz,nzero] = find(vet,:));
+    [z,zz,nzero] = find(vet);
 end
 
 function limArea = pegaLimitesArea(area, linha, coluna)
