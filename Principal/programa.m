@@ -1,7 +1,7 @@
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('Vazio.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('VazioInvertido.avi','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
@@ -22,12 +22,13 @@ secoes1 = extraiSecoes(i, rect1, 30);
 secoes2 = extraiSecoes(i, rect2, 30);
 
 %Determina ocupacao inicial de cada secao%
-[secoes1, secoes2] = ocupacaoSecoes(i, secoes1, secoes2);
-
 
 %%%Comeca a tocar o video%%%
 contQuadro = 1;
+analisaMovimento = 0;
 temMovimento = 0;
+[secoes1, secoes2] = ocupacaoSecoes(i, secoes1, secoes2);
+
 inicioMovimentos = [];
 finalMovimentos = [];
 
@@ -38,6 +39,9 @@ while ~isDone(videoReader)
    out = quadro;
    contQuadro = contQuadro + 1;
    %A cada segundo(30 quadros) verifica novamente a ocupacao das secoes%
+    if (contQuadro > 2)
+       analisaMovimento = 1; 
+    end
     if(contQuadro > 30)
         [secoes1, secoes2] = ocupacaoSecoes(quadro, secoes1, secoes2);
         contQuadro = 0;
@@ -61,7 +65,7 @@ while ~isDone(videoReader)
    %redor%
    %l1 = linha inicial, l2 = linha final, c1 = coluna inicial, c2 = coluna
    %final%
-   
+   if(analisaMovimento == 1)
     areasInteresse = achaAreaInteresseMult(mags,100, 250,250);
  
     
@@ -119,8 +123,9 @@ while ~isDone(videoReader)
         temMovimento = 0;
     end
     finalMovimentos = areasInteresse;
-
+   end
    step(videoPlayer, out);
+   
 end
 
 release(videoPlayer);
