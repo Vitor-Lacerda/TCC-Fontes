@@ -1,7 +1,7 @@
 function colunaAtributos = extraiCaracteristicasSecoes(img)
 
 imgYCbCr = rgb2ycbcr(img);
-imgCinza = rgb2gray(img);
+imgCinza = imgYCbCr(:,:,1);
 glcm = graycomatrix(imgCinza);
 features = graycoprops(glcm,'all');
 
