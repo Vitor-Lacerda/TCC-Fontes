@@ -1,0 +1,67 @@
+ROI 1 -> Em cima
+ROI 2 -> Embaixo
+
+Tempo em segundos(30 quadros/segundo)
+
+Video 1(0050201Carro)
+Tempo: 0 ROI 2: Secoes 3 ocupadas,
+Tempo: 10 ROI 2: Secoes 18  19 ocupadas,
+Tempo: 14 ROI 2: Secoes 3 liberadas,
+
+
+Vídeo 2(0550751Carro)
+Tempo: 0 ROI 2: Secoes 18  19  20 ocupadas,
+Tempo: 6 ROI 1: Secoes 21  22 ocupadas,
+
+Vídeo 3(0660861Entra1SaiPorFora)
+Tempo: 0 ROI 1: Secoes 22  23 ocupadas,
+Tempo: 0 ROI 2: Secoes 19  20  21 ocupadas,
+Tempo: 1 ROI 1: Secoes 23 liberadas,
+Tempo: 2 ROI 1: Secoes 23 ocupadas,
+Tempo: 4 ROI 1: Secoes 23 liberadas,
+Tempo: 8 ROI 1: Secoes 16  17 ocupadas,
+Tempo: 9 ROI 2: Secoes 21 liberadas,
+Tempo: 9 ROI 2: Secoes 18  24 ocupadas,
+Tempo: 11 ROI 1: Secoes 20 ocupadas,
+Tempo: 11 ROI 2: Secoes 24 liberadas,
+Tempo: 13 ROI 1: Secoes 20 liberadas,
+Tempo: 13 ROI 2: Secoes 20 liberadas,
+Tempo: 13 ROI 2: Secoes 18  19 liberadas,
+Tempo: 16 ROI 1: Secoes 20 ocupadas,
+Tempo: 19 ROI 1: Secoes 20 liberadas,
+
+
+Vídeo 4(0901201EntraPorCima1MudaDeVaga)
+Tempo: 0 ROI 1: Secoes 15  16  20  21 ocupadas,
+Tempo: 6 ROI 1: Secoes 18  19 ocupadas,
+Tempo: 11 ROI 1: Secoes 22 ocupadas,
+Tempo: 14 ROI 1: Secoes 22 liberadas,
+Tempo: 23 ROI 1: Secoes 20 liberadas,
+Tempo: 28 ROI 2: Secoes 12  13 ocupadas,
+
+Vídeo 5(1201301SaiPorCima)
+Tempo: 0 ROI 1: Secoes 15  16  18  19 ocupadas,
+Tempo: 0 ROI 2: Secoes 12  13 ocupadas,
+Tempo: 1 ROI 1: Secoes 17 ocupadas,
+Tempo: 3 ROI 1: Secoes 15  16 liberadas,
+Tempo: 4 ROI 1: Secoes 17 liberadas,
+
+Vídeo 6(1471581EntraPorBaixo1Sai)
+Tempo: 0 ROI 1: Secoes 18  19 ocupadas,
+Tempo: 0 ROI 2: Secoes 12  13 ocupadas,
+Tempo: 5 ROI 2: Secoes 15  16 ocupadas,
+Tempo: 7 ROI 2: Secoes 17 ocupadas,
+Tempo: 11 ROI 1: Secoes 18  19 liberadas,
+
+
+Vídeo 7(1581741Entra)
+Tempo: 0 ROI 2: Secoes 13  14  16  17 ocupadas,
+Tempo: 1 ROI 2: Secoes 12 ocupadas,
+Tempo: 2 ROI 2: Secoes 14 liberadas,
+Tempo: 5 ROI 2: Secoes 12  13 liberadas,
+
+Vídeo 8(1751981Passa1Entra)
+Tempo: 0 ROI 2: Secoes 16  17 ocupadas,
+Tempo: 20 ROI 2: Secoes 21  22  24 ocupadas,
+Tempo: 20 ROI 2: Secoes 23 ocupadas,
+Tempo: 21 ROI 2: Secoes 21 liberadas,

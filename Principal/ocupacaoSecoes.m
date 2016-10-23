@@ -1,7 +1,6 @@
-function [Nsecoes1, Nsecoes2] = ocupacaoSecoes(i,secoes1, secoes2)
+function Nsecoes = ocupacaoSecoes(i,secoes, inicio, fim)
 
-        Nsecoes1 = percorreQuadro(i, secoes1);
-        Nsecoes2 = percorreQuadro(i, secoes2);
+        Nsecoes = percorreQuadro(i, secoes, inicio, fim);
 
 end
 
@@ -42,10 +41,10 @@ function valorAjustado = ajusteGauss(valor, vetorSecoes, i)
     end
  end
 
-function nsecoes = percorreQuadro(quadro, secoes)
+function nsecoes = percorreQuadro(quadro, secoes, inicio, fim)
         
 %         quadroPlot = quadro;
-        for i = 1:size(secoes,1)
+        for i = inicio:fim
             
     %             s = secoes(i,:);
                 c = classeSecao(quadro, secoes, i);
