@@ -1,5 +1,5 @@
 function Nsecoes = ocupacaoSecoes(i,secoes, inicio, fim)
-
+%ahdfhadsf
         Nsecoes = percorreQuadro(i, secoes, inicio, fim);
 
 end

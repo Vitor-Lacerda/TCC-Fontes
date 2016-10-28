@@ -1,5 +1,5 @@
 function nSecoes = marcaMovimento(secoes, movimento, quadro)
-
+%comita pls
     indices = [];
 
     for i = 1:size(secoes,1)

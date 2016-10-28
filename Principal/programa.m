@@ -3,7 +3,7 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('1751981Passa1Entra.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('MeioCheioCortado.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
