@@ -70,34 +70,9 @@ function [nsecoes,consecutivas] = percorreQuadro(quadro, secoes, inicio, fim)
                  
                 if(secoes(i,8) == 0)
                    secoes(i,1) = cc;
-%                    if(secoes(i,6) ~= cc)
-%                      if(mudouAnterior && i>1 && secoes(i,1) == secoes(i-1,1))
-%                          contConsecutivas = contConsecutivas + 1;
-%                      else
-%                          consecutivas = [consecutivas, contConsecutivas];
-%                          contConsecutivas = 0;
-%                      end
-%                      mudouAnterior = 1;
-%                    else
-%                      consecutivas = [consecutivas, contConsecutivas];
-%                      contConsecutivas = 0;
-%                      mudouAnterior = 0;
-%                    end
                 else
                    if(secoes(i,7) >=10)
                         secoes(i,1) = cc;
-%                         if(secoes(i,6) ~= cc)
-%                             if(mudouAnterior && i>1 && secoes(i,1) == secoes(i-1,1))
-%                                 contConsecutivas = contConsecutivas + 1;
-%                             else
-%                                 consecutivas = [cosecutivas, contConsecutivas];
-%                                 contConsecutivas = 0;
-%                             end
-%                             mudouAnterior = 1;
-%                         else
-%                             contConsecutivas = 0;
-%                             mudouAnterior = 0;
-%                         end
                         secoes(i,8) = 0;
                         secoes(i,7) = 0;
                    end

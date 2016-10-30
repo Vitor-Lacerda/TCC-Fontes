@@ -3,7 +3,7 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('1471581EntraPorBaixo1Sai.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('0901201EntraPorCima1MudaDeVaga.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
@@ -45,32 +45,16 @@ temMovimento = 0;
 % secoesAnt1 = secoes1;
 % secoesAnt2 = secoes2;
 
-% [secoes1, secoes2] = ocupacaoSecoes(i, secoes1, secoes2);
-% consec1 = [];
-% consec2 = [];
-% consecT = [];
 [secoes1,consec1] = ocupacaoSecoes(i, secoes1, 1, size(secoes1, 1));
 [secoes2,consec2] = ocupacaoSecoes(i, secoes2, 1, size(secoes2, 1));
-% mediaSecoes = 2;
-% consecT = [consecT,consec1, consec2];
-% if(sum(consecT) > 0)
-%     mediaSecoes = mean(consecT)
-% else
-%     mediaSecoes = 2
-% end
-% mediaSecoes = 2;
-% 
-% v1 = contaVagas(secoes1, mediaSecoes);
-% v2 = contaVagas(secoes2, mediaSecoes);
 
-%   VOCUPADAS = v1+v2;
-% 
-% ['Vagas ocupadas: ', num2str(VOCUPADAS)]
 
 % comparaSecoes(secoesAnt1, secoes1, segundos, 1);
 % comparaSecoes(secoesAnt2, secoes2, segundos, 2);
 
 vagas = [];
+vagas = vagasIniciais(vagas, secoes1, 1);
+vagas = vagasIniciais(vagas, secoes2, 2);
 
 inicioMovimentos = [];
 finalMovimentos = [];
@@ -95,24 +79,7 @@ while ~isDone(videoReader)
 
         [secoes1,consec1] = ocupacaoSecoes(quadro, secoes1, 1, size(secoes1, 1));
         [secoes2,consec2] = ocupacaoSecoes(quadro, secoes2, 1, size(secoes2, 1));
-%         
-%         consecT = [consecT,consec1, consec2];
-%         if(sum(consecT) > 0)
-%             mediaSecoes = mean(consecT)
-%         else
-%             mediaSecoes = 2
-%         end
-%         mediaSecoes = 2;
-%         
-%         v1 = contaVagas(secoes1, mediaSecoes);
-%         v2 = contaVagas(secoes2, mediaSecoes);
-%         
-%         VOCUPADAS = v1+v2;
-%         
-%         ['Vagas ocupadas: ', num2str(VOCUPADAS)]
-        
-%         comparaSecoes(secoesAnt1, secoes1, segundos, 1);
-%         comparaSecoes(secoesAnt2, secoes2, segundos, 2);
+
         
         contQuadro = 0;
     end
@@ -257,6 +224,22 @@ function vagas = contaVagas(secoes, media)
         end
         
     end
+
+
+end
+
+function nvagas = vagasIniciais(vagas, secoes, ROI)
+    indices = [];
+    nvagas = vagas;
+    for i=1:size(secoes,1)
+        if(secoes(i,1) == 1)
+          indices = [indices, i];
+        else
+           nvagas = marcaVagas(vagas, indices, ROI, size(secoes,1));
+        end
+        
+    end
+    
 
 
 end
