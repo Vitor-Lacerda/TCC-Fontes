@@ -3,7 +3,7 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('MeioCheioCortado.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('1471581EntraPorBaixo1Sai.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
@@ -46,11 +46,31 @@ temMovimento = 0;
 % secoesAnt2 = secoes2;
 
 % [secoes1, secoes2] = ocupacaoSecoes(i, secoes1, secoes2);
-secoes1 = ocupacaoSecoes(i, secoes1, 1, size(secoes1, 1));
-secoes2 = ocupacaoSecoes(i, secoes2, 1, size(secoes2, 1));
+% consec1 = [];
+% consec2 = [];
+% consecT = [];
+[secoes1,consec1] = ocupacaoSecoes(i, secoes1, 1, size(secoes1, 1));
+[secoes2,consec2] = ocupacaoSecoes(i, secoes2, 1, size(secoes2, 1));
+% mediaSecoes = 2;
+% consecT = [consecT,consec1, consec2];
+% if(sum(consecT) > 0)
+%     mediaSecoes = mean(consecT)
+% else
+%     mediaSecoes = 2
+% end
+% mediaSecoes = 2;
+% 
+% v1 = contaVagas(secoes1, mediaSecoes);
+% v2 = contaVagas(secoes2, mediaSecoes);
+
+%   VOCUPADAS = v1+v2;
+% 
+% ['Vagas ocupadas: ', num2str(VOCUPADAS)]
 
 % comparaSecoes(secoesAnt1, secoes1, segundos, 1);
 % comparaSecoes(secoesAnt2, secoes2, segundos, 2);
+
+vagas = [];
 
 inicioMovimentos = [];
 finalMovimentos = [];
@@ -73,8 +93,23 @@ while ~isDone(videoReader)
 %         secoesAnt1 = secoes1;
 %         secoesAnt2 = secoes2;
 
-        secoes1 = ocupacaoSecoes(quadro, secoes1, 1, size(secoes1, 1));
-        secoes2 = ocupacaoSecoes(quadro, secoes2, 1, size(secoes2, 1));
+        [secoes1,consec1] = ocupacaoSecoes(quadro, secoes1, 1, size(secoes1, 1));
+        [secoes2,consec2] = ocupacaoSecoes(quadro, secoes2, 1, size(secoes2, 1));
+%         
+%         consecT = [consecT,consec1, consec2];
+%         if(sum(consecT) > 0)
+%             mediaSecoes = mean(consecT)
+%         else
+%             mediaSecoes = 2
+%         end
+%         mediaSecoes = 2;
+%         
+%         v1 = contaVagas(secoes1, mediaSecoes);
+%         v2 = contaVagas(secoes2, mediaSecoes);
+%         
+%         VOCUPADAS = v1+v2;
+%         
+%         ['Vagas ocupadas: ', num2str(VOCUPADAS)]
         
 %         comparaSecoes(secoesAnt1, secoes1, segundos, 1);
 %         comparaSecoes(secoesAnt2, secoes2, segundos, 2);
@@ -84,6 +119,7 @@ while ~isDone(videoReader)
     %Pinta a imagem com a ocupacao e as secoes%
     out = pintaSecoes(out, secoes1);
     out = pintaSecoes(out, secoes2);
+    out = pintaVagas(out, vagas, secoes1, secoes2);
     
     %Configura a imagem pra ferramente opticalflow%
     im = rgb2gray(quadro);
@@ -128,12 +164,14 @@ while ~isDone(videoReader)
             if(dentroRetangulo(rect1, inicioMovimentos(k,5), inicioMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, inicioMovimento(3), rect1(2), inicioMovimento(4)-inicioMovimento(3), rect1(4),0];
 %                 secoes1 = atualizaVetorSecoes(secoes1, novaSecao);
-                  secoes1 = marcaMovimento(secoes1, inicioMovimentos(k,:), quadro);
+                  [secoes1,indices] = marcaMovimento(secoes1, inicioMovimentos(k,:), quadro);
+                  vagas = marcaVagas(vagas, indices,1,nsecoes);
             end
             if(dentroRetangulo(rect2, inicioMovimentos(k,5), inicioMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, inicioMovimento(3), rect2(2), inicioMovimento(4)-inicioMovimento(3), rect2(4),0];
 %                 secoes2 = atualizaVetorSecoes(secoes2, novaSecao);
-                  secoes2 = marcaMovimento(secoes2, inicioMovimentos(k,:), quadro);
+                  [secoes2,indices] = marcaMovimento(secoes2, inicioMovimentos(k,:), quadro);
+                  vagas = marcaVagas(vagas, indices,2,nsecoes);
             end
           end
           for(k = 1: size(finalMovimentos,1)) 
@@ -141,12 +179,14 @@ while ~isDone(videoReader)
             if(dentroRetangulo(rect1, finalMovimentos(k,5), finalMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, finalMovimento(3), rect1(2), finalMovimento(4)-finalMovimento(3), rect1(4),0];
 %                 secoes1 = atualizaVetorSecoes(secoes1, novaSecao);
-                  secoes1 = marcaMovimento(secoes1, finalMovimentos(k,:), quadro);
+                  [secoes1,indices] = marcaMovimento(secoes1, finalMovimentos(k,:), quadro);
+                  vagas = marcaVagas(vagas, indices,1,nsecoes);
             end
             if(dentroRetangulo(rect2, finalMovimentos(k,5), finalMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, finalMovimento(3), rect2(2), finalMovimento(4)-finalMovimento(3), rect2(4),0];
 %                 secoes2 = atualizaVetorSecoes(secoes2, novaSecao);
-                  secoes2 = marcaMovimento(secoes2, finalMovimentos(k,:), quadro);
+                  [secoes2,indices] = marcaMovimento(secoes2, finalMovimentos(k,:), quadro);
+                  vagas = marcaVagas(vagas, indices,2,nsecoes);
             end
           end
             
@@ -155,6 +195,9 @@ while ~isDone(videoReader)
 %               secoes2 = ocupacaoSecoes(quadro, secoes2, 1, size(secoes2, 1));
 %                 comparaSecoes(secoesAnt1, secoes1, segundos, 1);
 %                 comparaSecoes(secoesAnt2, secoes2, segundos, 2);
+
+%             consecT = [consecT,consec1, consec2];
+%             mediaSecoes = mean(consecT);
             
         end
         
@@ -197,6 +240,54 @@ function comparaSecoes(anterior, novo, t,roi)
         ['Tempo: ', num2str(t), ' ROI ', num2str(roi), ': Secoes ',  num2str(liberadas), ' liberadas,']
     end
 
+end
+
+function vagas = contaVagas(secoes, media)
+    contOcupadas = 0;
+    vagas = 0;
+    for i=1:size(secoes,1)
+        if(secoes(i,1) == 1)
+           contOcupadas = contOcupadas+1;
+           if(contOcupadas >= media)
+               vagas = vagas + 1;
+               contOcupadas = 0;
+           end
+        else
+           contOcupadas = 0; 
+        end
+        
+    end
+
+
+end
+
+function nvagas = marcaVagas(vagas, indices, ROI, max)
+    v = zeros(1,max);
+    v(1:2) = [ROI, size(indices,2)];
+    v(3:3+size(indices,2)-1) = indices;
+    nvagas = [vagas;v];
+
+end
+
+function saida = pintaVagas(quadro, vagas,secoes1, secoes2)
+    saida = quadro;
+    for v = 1:size(vagas,1)
+        vaga = vagas(v,:);
+        if(vaga(1) == 1)
+            secoes = secoes1(vaga(3:3+vaga(2)-1),:);
+            for k =1:size(secoes,1)
+               s = secoes(k,:);
+               saida(s(3)+5*v:s(3)+5*v+15, s(2):s(2)+s(4),3) = 255;
+            end
+        else
+            secoes = secoes2(vaga(3:3+vaga(2)-1),:);
+            for k =1:size(secoes,1)
+               s = secoes(k,:);
+               saida(s(3)+5*v:s(3)+5*v+15, s(2):s(2)+s(4),3) = 255;
+            end
+        end
+        
+    end
 end
 
 

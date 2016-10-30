@@ -1,6 +1,6 @@
-function Nsecoes = ocupacaoSecoes(i,secoes, inicio, fim)
-%ahdfhadsf
-        Nsecoes = percorreQuadro(i, secoes, inicio, fim);
+function [Nsecoes,consecutivas] = ocupacaoSecoes(i,secoes, inicio, fim)
+        
+        [Nsecoes,consecutivas] = percorreQuadro(i, secoes, inicio, fim);
 
 end
 
@@ -41,8 +41,12 @@ function valorAjustado = ajusteGauss(valor, vetorSecoes, i)
     end
  end
 
-function nsecoes = percorreQuadro(quadro, secoes, inicio, fim)
+function [nsecoes,consecutivas] = percorreQuadro(quadro, secoes, inicio, fim)
         
+        mudouAnterior = 0;
+        contConsecutivas = 0;
+        consecutivas = [];
+
 %         quadroPlot = quadro;
         for i = inicio:fim
             
@@ -66,16 +70,40 @@ function nsecoes = percorreQuadro(quadro, secoes, inicio, fim)
                  
                 if(secoes(i,8) == 0)
                    secoes(i,1) = cc;
+%                    if(secoes(i,6) ~= cc)
+%                      if(mudouAnterior && i>1 && secoes(i,1) == secoes(i-1,1))
+%                          contConsecutivas = contConsecutivas + 1;
+%                      else
+%                          consecutivas = [consecutivas, contConsecutivas];
+%                          contConsecutivas = 0;
+%                      end
+%                      mudouAnterior = 1;
+%                    else
+%                      consecutivas = [consecutivas, contConsecutivas];
+%                      contConsecutivas = 0;
+%                      mudouAnterior = 0;
+%                    end
                 else
                    if(secoes(i,7) >=10)
                         secoes(i,1) = cc;
+%                         if(secoes(i,6) ~= cc)
+%                             if(mudouAnterior && i>1 && secoes(i,1) == secoes(i-1,1))
+%                                 contConsecutivas = contConsecutivas + 1;
+%                             else
+%                                 consecutivas = [cosecutivas, contConsecutivas];
+%                                 contConsecutivas = 0;
+%                             end
+%                             mudouAnterior = 1;
+%                         else
+%                             contConsecutivas = 0;
+%                             mudouAnterior = 0;
+%                         end
                         secoes(i,8) = 0;
                         secoes(i,7) = 0;
                    end
                 end
                 
                 secoes(i,6) = cc;
-
 
 
     %             quadroPlot(s(3):s(3)+s(5), s(2):s(2)+s(4),1) = 255*c(1);

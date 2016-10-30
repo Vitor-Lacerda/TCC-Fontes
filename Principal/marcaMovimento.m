@@ -1,4 +1,4 @@
-function nSecoes = marcaMovimento(secoes, movimento, quadro)
+function [nSecoes, indices] = marcaMovimento(secoes, movimento, quadro)
 %comita pls
     indices = [];
 
@@ -10,6 +10,8 @@ function nSecoes = marcaMovimento(secoes, movimento, quadro)
         end  
     end
     nSecoes = secoes;
-    nSecoes = ocupacaoSecoes(quadro, nSecoes, indices(1), indices(end));
+    if(size(indices,2) > 0)
+        [nSecoes,consecs] = ocupacaoSecoes(quadro, nSecoes, indices(1), indices(end));
+    end
 end
 
