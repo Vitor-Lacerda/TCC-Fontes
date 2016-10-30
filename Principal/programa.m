@@ -3,7 +3,7 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('0901201EntraPorCima1MudaDeVaga.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('1471581EntraPorBaixo1Sai.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
@@ -235,7 +235,10 @@ function nvagas = vagasIniciais(vagas, secoes, ROI)
         if(secoes(i,1) == 1)
           indices = [indices, i];
         else
-           nvagas = marcaVagas(vagas, indices, ROI, size(secoes,1));
+           if(size(indices,2) > 0)
+            nvagas = marcaVagas(nvagas, indices, ROI, size(secoes,1));
+           end
+           indices = [];
         end
         
     end
@@ -245,10 +248,79 @@ function nvagas = vagasIniciais(vagas, secoes, ROI)
 end
 
 function nvagas = marcaVagas(vagas, indices, ROI, max)
-    v = zeros(1,max);
+    nvagas = vagas;
+    v = zeros(1,max+2);
     v(1:2) = [ROI, size(indices,2)];
     v(3:3+size(indices,2)-1) = indices;
-    nvagas = [vagas;v];
+    if(size(nvagas,1) == 0)
+       nvagas = v; 
+    else
+        rois = nvagas(:,1);
+        mesmaRoi = rois == ROI;
+        linhas = find(mesmaRoi);
+        mesmaRoi = nvagas(linhas,:);
+        inds = mesmaRoi(:,2:end);
+        comeco = v(3);
+        final = v(3+v(2)-1);
+        marcou = 0;
+        for i=1:size(inds,1)
+            comecoAnt = inds(i,2);
+            finalAnt = inds(i,2+inds(i,1)-1);
+            %Ve se a vaga nova come uma antiga
+            if(comecoAnt >= comeco && finalAnt <= final)
+                %Agora vale a nova
+                inds(i,:) = v(2:end);
+                marcou = 1;
+            %ve se uma antiga come a nova
+            elseif(comeco >= comecoAnt && final <= finalAnt)
+                marcou = 1;
+                if(inds(i,1) >= v(2)*2)
+                %Separa a vaga anterior em duas se couber duas da nova na antiga%
+                
+                %Uma vaga nova que vai do final ate o final da anterior%
+                 vagaDireita = [final+1:finalAnt];
+                 if(size(vagaDireita,1) > 0)
+                     indsNovos = zeros(1,max);
+                     indsNovos(1:1+size(vagaDireita,2)-1) = vagaDireita;
+                     vNova = [ROI, size(vagaDireita,2), indsNovos];
+                     nvagas = [nvagas;vNova];
+                 end
+                 
+                 %Modifica a vaga antiga pra ser so do comeco dela ate o
+                 %final da nova%
+                 vagaEsquerda = [comecoAnt:final];
+                 inds(i,1) = size(vagaEsquerda,2);
+                 inds(i,2:2+size(vagaEsquerda,2)-1) = vagaEsquerda;
+                end
+                 
+            %ve se tem intersecção so%
+            elseif((comeco >= comecoAnt && comeco <= finalAnt) ||  (final >= comecoAnt && final <= finalAnt))
+               %quantas seçoes na interseccao%
+               inters = 1;
+               if(final >= comecoAnt && final <= finalAnt)
+                   inters = final-comecoAnt;
+               else
+                   inters = finalAnt-comeco; 
+               end
+               
+               if(inters>1)
+                  marcou = 1;
+                  vn = v;
+                  indsN = [vn(3:3+vn(2)-1), inds(i,2:2+inds(i,1)-1)];              
+                  indsN = unique(indsN);
+                  inds(i,1) = size(indsN,2);
+                  z = zeros(1,max);
+                  z(1:1+size(indsN,2)-1) = indsN;
+                  inds(i,2:end) = z;
+               end
+            end
+        end
+        
+        nvagas(linhas, 2:end) = inds;
+        if(marcou == 0)
+           nvagas = [nvagas;v]; 
+        end
+    end
 
 end
 
