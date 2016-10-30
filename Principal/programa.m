@@ -3,7 +3,7 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('1471581EntraPorBaixo1Sai.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('MeioCheioCortado.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
@@ -45,8 +45,8 @@ temMovimento = 0;
 % secoesAnt1 = secoes1;
 % secoesAnt2 = secoes2;
 
-[secoes1,consec1] = ocupacaoSecoes(i, secoes1, 1, size(secoes1, 1));
-[secoes2,consec2] = ocupacaoSecoes(i, secoes2, 1, size(secoes2, 1));
+secoes1 = ocupacaoSecoes(i, secoes1, 1, size(secoes1, 1));
+secoes2 = ocupacaoSecoes(i, secoes2, 1, size(secoes2, 1));
 
 
 % comparaSecoes(secoesAnt1, secoes1, segundos, 1);
@@ -55,6 +55,12 @@ temMovimento = 0;
 vagas = [];
 vagas = vagasIniciais(vagas, secoes1, 1);
 vagas = vagasIniciais(vagas, secoes2, 2);
+
+VagasOcupadas = 0;
+VagasOcupadas = ocupacaoVagas(vagas, 1, secoes1);
+VagasOcupadas = VagasOcupadas + ocupacaoVagas(vagas, 2, secoes2);
+[num2str(VagasOcupadas), ' vagas ocupadas.']
+
 
 inicioMovimentos = [];
 finalMovimentos = [];
@@ -77,9 +83,11 @@ while ~isDone(videoReader)
 %         secoesAnt1 = secoes1;
 %         secoesAnt2 = secoes2;
 
-        [secoes1,consec1] = ocupacaoSecoes(quadro, secoes1, 1, size(secoes1, 1));
-        [secoes2,consec2] = ocupacaoSecoes(quadro, secoes2, 1, size(secoes2, 1));
-
+        secoes1 = ocupacaoSecoes(quadro, secoes1, 1, size(secoes1, 1));
+        secoes2 = ocupacaoSecoes(quadro, secoes2, 1, size(secoes2, 1));
+        VagasOcupadas = ocupacaoVagas(vagas, 1, secoes1);
+        VagasOcupadas = VagasOcupadas + ocupacaoVagas(vagas, 2, secoes2);
+        [num2str(VagasOcupadas), ' vagas ocupadas.']
         
         contQuadro = 0;
     end
@@ -166,6 +174,10 @@ while ~isDone(videoReader)
 %             consecT = [consecT,consec1, consec2];
 %             mediaSecoes = mean(consecT);
             
+                VagasOcupadas = ocupacaoVagas(vagas, 1, secoes1);
+                VagasOcupadas = VagasOcupadas + ocupacaoVagas(vagas, 2, secoes2);
+                [num2str(VagasOcupadas), ' vagas ocupadas.']
+
         end
         
         temMovimento = 0;
@@ -249,17 +261,21 @@ end
 
 function nvagas = marcaVagas(vagas, indices, ROI, max)
     nvagas = vagas;
+    %A vaga nova
     v = zeros(1,max+2);
     v(1:2) = [ROI, size(indices,2)];
     v(3:3+size(indices,2)-1) = indices;
     if(size(nvagas,1) == 0)
        nvagas = v; 
     else
+        %Pega so as vagas que sao da mesma ROI que a vaga que eu to
+        %marcando
         rois = nvagas(:,1);
         mesmaRoi = rois == ROI;
         linhas = find(mesmaRoi);
         mesmaRoi = nvagas(linhas,:);
         inds = mesmaRoi(:,2:end);
+        %grava o comeco e o fim pra facil acesso
         comeco = v(3);
         final = v(3+v(2)-1);
         marcou = 0;
@@ -271,10 +287,11 @@ function nvagas = marcaVagas(vagas, indices, ROI, max)
                 %Agora vale a nova
                 inds(i,:) = v(2:end);
                 marcou = 1;
+                break;
             %ve se uma antiga come a nova
             elseif(comeco >= comecoAnt && final <= finalAnt)
                 marcou = 1;
-                if(inds(i,1) >= v(2)*2)
+                if(inds(i,1) >= v(2)*2 && comeco == comecoAnt)
                 %Separa a vaga anterior em duas se couber duas da nova na antiga%
                 
                 %Uma vaga nova que vai do final ate o final da anterior%
@@ -291,28 +308,65 @@ function nvagas = marcaVagas(vagas, indices, ROI, max)
                  vagaEsquerda = [comecoAnt:final];
                  inds(i,1) = size(vagaEsquerda,2);
                  inds(i,2:2+size(vagaEsquerda,2)-1) = vagaEsquerda;
+                else
+                %Se nao der pra separar, vale a nova
+                  inds(i,:) = v(2:end);
                 end
+              
+                break;  
+                    
                  
-            %ve se tem intersecção so%
-            elseif((comeco >= comecoAnt && comeco <= finalAnt) ||  (final >= comecoAnt && final <= finalAnt))
+            %ve se tem intersecção pela direita%
+            elseif((comeco >= comecoAnt && comeco <= finalAnt))
                %quantas seçoes na interseccao%
-               inters = 1;
-               if(final >= comecoAnt && final <= finalAnt)
-                   inters = final-comecoAnt;
-               else
-                   inters = finalAnt-comeco; 
-               end
+               inters = finalAnt-comeco+1;
+               marcou = 1;
+               vn = v;
+               vInters = vn(3:3+inters-1);
+               div = ceil(inters/2);
+               %divide as intersecções entre as duas vagas. Preferencia
+               %para a vaga nova.
+               esquerda = vInters(1:inters-div);
+               direita = vInters(inters-div+1:end);
                
-               if(inters>1)
-                  marcou = 1;
-                  vn = v;
-                  indsN = [vn(3:3+vn(2)-1), inds(i,2:2+inds(i,1)-1)];              
-                  indsN = unique(indsN);
-                  inds(i,1) = size(indsN,2);
-                  z = zeros(1,max);
-                  z(1:1+size(indsN,2)-1) = indsN;
-                  inds(i,2:end) = z;
-               end
+               indAnt = inds(i,2:2+inds(i,1)-1-inters);
+               indAnt = [indAnt,esquerda];
+               ze = zeros(1,max);
+               ze(1:size(indAnt,2)) = indAnt;
+               inds(i,:) = [size(indAnt,2), ze];
+               
+               indNovo = [direita, vn(3+inters:3+vn(2)-1)];
+               zd = zeros(1,max);
+               zd(1:size(indNovo,2)) = indNovo;
+               vn = [ROI, size(indNovo,2), zd];
+               nvagas = [nvagas;vn]; 
+               break;
+            %ve se tem intersecção pela esquerda%
+            elseif((final >= comecoAnt && final <= finalAnt))
+               %quantas seçoes na interseccao%
+               inters = final-comecoAnt+1;
+               marcou = 1;
+               vn = v;
+               vInters = vn(3:3+inters-1);
+               div = floor(inters/2);
+               %divide as intersecções entre as duas vagas. Preferencia
+               %para a vaga nova.
+               esquerda = vInters(1:inters-div);
+               direita = vInters(inters-div+1:end);
+               
+               indNovo = inds(i,2:2+inds(i,1)-1-inters);
+               indNovo = [indNovo,esquerda];
+               ze = zeros(1,max);
+               ze(1:size(indNovo,2)) = indNovo;
+               vn = [ROI, size(indNovo,2), ze];
+               nvagas = [nvagas;vn]; 
+               
+               indAnt = [direita, vn(3+inters:3+vn(2)-1)];
+               zd = zeros(1,max);
+               zd(1:size(indAnt,2)) = indAnt;
+               inds(i,:) = [size(indAnt,2), zd];
+               
+               break;
             end
         end
         
@@ -345,6 +399,33 @@ function saida = pintaVagas(quadro, vagas,secoes1, secoes2)
     end
 end
 
+function ocupadas = ocupacaoVagas(vagas, ROI, secoes)
+    
+    ocupadas = 0;
 
+    if(size(vagas,1) > 0)
+   %Pega as vagas da ROI desejada
+    rois = vagas(:,1);
+    rois = rois == ROI;
+    linhas = find(rois);
+    rois = vagas(linhas,:);
+    
+    for i = 1:size(rois,1)
+       v = rois(i,:);
+       cont = 0;
+       for k = 3:3+v(2)-1
+           if(secoes(v(k),1) == 1)
+              cont = cont + 1; 
+           end
+       end
+       
+       if(cont >= v(2)/2)
+          ocupadas = ocupadas + 1; 
+       end
+  
+    end
+    end
+
+end
 
 

@@ -11,7 +11,7 @@ function [nSecoes, indices] = marcaMovimento(secoes, movimento, quadro)
     end
     nSecoes = secoes;
     if(size(indices,2) > 0)
-        [nSecoes,consecs] = ocupacaoSecoes(quadro, nSecoes, indices(1), indices(end));
+        nSecoes = ocupacaoSecoes(quadro, nSecoes, indices(1), indices(end));
     end
 end
 

@@ -1,6 +1,6 @@
-function [Nsecoes,consecutivas] = ocupacaoSecoes(i,secoes, inicio, fim)
+function Nsecoes = ocupacaoSecoes(i,secoes, inicio, fim)
         
-        [Nsecoes,consecutivas] = percorreQuadro(i, secoes, inicio, fim);
+        Nsecoes = percorreQuadro(i, secoes, inicio, fim);
 
 end
 
@@ -41,11 +41,8 @@ function valorAjustado = ajusteGauss(valor, vetorSecoes, i)
     end
  end
 
-function [nsecoes,consecutivas] = percorreQuadro(quadro, secoes, inicio, fim)
+function nsecoes = percorreQuadro(quadro, secoes, inicio, fim)
         
-        mudouAnterior = 0;
-        contConsecutivas = 0;
-        consecutivas = [];
 
 %         quadroPlot = quadro;
         for i = inicio:fim
