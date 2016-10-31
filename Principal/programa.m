@@ -3,7 +3,7 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('MeioCheioCortado.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('Vazio.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
@@ -279,45 +279,50 @@ function nvagas = marcaVagas(vagas, indices, ROI, max)
         comeco = v(3);
         final = v(3+v(2)-1);
         marcou = 0;
+        
+        indsRemover = [];
+        vagasAdicionar = v;
+        
         for i=1:size(inds,1)
             comecoAnt = inds(i,2);
             finalAnt = inds(i,2+inds(i,1)-1);
             %Ve se a vaga nova come uma antiga
             if(comecoAnt >= comeco && finalAnt <= final)
-                %Agora vale a nova
-                inds(i,:) = v(2:end);
-                marcou = 1;
-                break;
+                %Tira a vaga comida
+                indsRemover = [indsRemover,i];
+%                 marcou = 1;
             %ve se uma antiga come a nova
             elseif(comeco >= comecoAnt && final <= finalAnt)
-                marcou = 1;
-                if(inds(i,1) >= v(2)*2 && comeco == comecoAnt)
-                %Separa a vaga anterior em duas se couber duas da nova na antiga%
+                %Tira a vaga que ta comendo
+                indsRemover = [indsRemover,i];
                 
-                %Uma vaga nova que vai do final ate o final da anterior%
-                 vagaDireita = [final+1:finalAnt];
-                 if(size(vagaDireita,1) > 0)
-                     indsNovos = zeros(1,max);
-                     indsNovos(1:1+size(vagaDireita,2)-1) = vagaDireita;
-                     vNova = [ROI, size(vagaDireita,2), indsNovos];
-                     nvagas = [nvagas;vNova];
-                 end
-                 
-                 %Modifica a vaga antiga pra ser so do comeco dela ate o
-                 %final da nova%
-                 vagaEsquerda = [comecoAnt:final];
-                 inds(i,1) = size(vagaEsquerda,2);
-                 inds(i,2:2+size(vagaEsquerda,2)-1) = vagaEsquerda;
-                else
-                %Se nao der pra separar, vale a nova
-                  inds(i,:) = v(2:end);
+                %Se o que sobrar a esquerda for suficiente marca outra vaga
+                %pra criar
+                if (comeco - comecoAnt) >= inds(i,1)/2
+                   esq = [comecoAnt:comeco];
+                   ze = zeros(1,max);
+                   ze(1:size(esq,2)) = esq;
+                   ve = [ROI, size(esq,2), ze];
+                   vagasAdicionar = [vagasAdicionar;ve];
                 end
-              
-                break;  
-                    
-                 
+                
+                %Se o que sobrar a direita for suficiente marca outra vaga
+                %pra criar
+                if (finalAnt - final) >= inds(i,1)/2
+                   dir = [final:finalAnt];
+                   zd = zeros(1,max);
+                   zd(1:size(dir,2)) = dir;
+                   vd = [ROI, size(dir,2), zd];
+                   vagasAdicionar = [vagasAdicionar;vd];
+                end
+                
+                
             %ve se tem intersecção pela direita%
             elseif((comeco >= comecoAnt && comeco <= finalAnt))
+               %Tira a vaga que ta interceptando
+                indsRemover = [indsRemover,i];
+                
+                
                %quantas seçoes na interseccao%
                inters = finalAnt-comeco+1;
                marcou = 1;
@@ -329,20 +334,26 @@ function nvagas = marcaVagas(vagas, indices, ROI, max)
                esquerda = vInters(1:inters-div);
                direita = vInters(inters-div+1:end);
                
+               %cria a vaga nova que vai ficar a esquerda
                indAnt = inds(i,2:2+inds(i,1)-1-inters);
                indAnt = [indAnt,esquerda];
                ze = zeros(1,max);
                ze(1:size(indAnt,2)) = indAnt;
-               inds(i,:) = [size(indAnt,2), ze];
+               ve = [ROI,size(indAnt,2), ze];
+               vagasAdicionar = [vagasAdicionar;ve];
                
+               
+               %muda a vaga nova
                indNovo = [direita, vn(3+inters:3+vn(2)-1)];
                zd = zeros(1,max);
                zd(1:size(indNovo,2)) = indNovo;
                vn = [ROI, size(indNovo,2), zd];
-               nvagas = [nvagas;vn]; 
-               break;
+               v = vn; 
             %ve se tem intersecção pela esquerda%
             elseif((final >= comecoAnt && final <= finalAnt))
+               %Tira a vaga que ta interceptando
+                indsRemover = [indsRemover,i]; 
+                
                %quantas seçoes na interseccao%
                inters = final-comecoAnt+1;
                marcou = 1;
@@ -354,26 +365,36 @@ function nvagas = marcaVagas(vagas, indices, ROI, max)
                esquerda = vInters(1:inters-div);
                direita = vInters(inters-div+1:end);
                
+               
+               %muda a vaga que to olhando
                indNovo = inds(i,2:2+inds(i,1)-1-inters);
                indNovo = [indNovo,esquerda];
                ze = zeros(1,max);
                ze(1:size(indNovo,2)) = indNovo;
                vn = [ROI, size(indNovo,2), ze];
-               nvagas = [nvagas;vn]; 
+               v = vn;
                
+               %cria a vaga nova que vai ficar a direita
                indAnt = [direita, vn(3+inters:3+vn(2)-1)];
                zd = zeros(1,max);
                zd(1:size(indAnt,2)) = indAnt;
-               inds(i,:) = [size(indAnt,2), zd];
+               vd = [ROI,size(indAnt,2), zd];
+               vagasAdicionar = [vagasAdicionar;vd];
                
-               break;
             end
         end
         
-        nvagas(linhas, 2:end) = inds;
-        if(marcou == 0)
-           nvagas = [nvagas;v]; 
-        end
+        %pega as linhas das vagas que eu quero tirar
+        remover = mesmaRoi(indsRemover,:);
+        %tira do vetor de vagas
+        nvagas = setdiff(nvagas, remover,'rows');
+        %coloca as novas no final
+        nvagas = [nvagas;vagasAdicionar];
+        
+%         nvagas(linhas, 2:end) = inds;
+%         if(marcou == 0)
+%            nvagas = [nvagas;v]; 
+%         end
     end
 
 end
