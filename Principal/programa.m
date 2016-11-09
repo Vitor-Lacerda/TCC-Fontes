@@ -3,14 +3,14 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('meiocheioEstabilizado.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('Animacao2carros2Cima.avi','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
 % shapeInserter = vision.ShapeInserter('Shape','Rectangles');
 
 %%%%%MODO DE MAPEAMENTO%%%%%%%%
-simples = 1;
+simples = 0;
 
 %Mostra o primeiro quadro pra determinar as regioes onde há vagas%
 i = step(videoReader);
@@ -20,7 +20,7 @@ rect2 = getrect;
 
 rect1 = floor(rect1);
 rect2 = floor(rect2);
-
+% 
 % rect1 = [3 4 850 148];
 % rect2 = [3 308 848 172];
 
@@ -39,7 +39,7 @@ secoes2 = extraiSecoes(i, rect2, nsecoes);
 
 %%%Comeca a tocar o video%%%
 contQuadro = 1;
-% segundos = 0;
+segundos = 0;
 analisaMovimento = 0;
 temMovimento = 0;
 
@@ -63,7 +63,7 @@ vagas = vagasIniciais(vagas, secoes2, 2);
 end
 
 
-
+VagasAntes = 0;
 VagasOcupadas = 0;
 if(simples == 1)
 VagasOcupadas = ocupacaoVagasSimples(secoes1);
@@ -72,7 +72,14 @@ else
 VagasOcupadas = ocupacaoVagas(vagas, 1, secoes1);
 VagasOcupadas = VagasOcupadas + ocupacaoVagas(vagas, 2, secoes2);
 end
-[num2str(VagasOcupadas), ' vagas ocupadas.']
+
+if(VagasOcupadas ~= VagasAntes)
+    [num2str(segundos),' segundos: ', num2str(VagasOcupadas), ' vagas ocupadas.']
+end
+
+VagasAntes = VagasOcupadas;
+
+
 
 
 inicioMovimentos = [];
@@ -89,7 +96,7 @@ while ~isDone(videoReader)
        analisaMovimento = 1; 
     end
     if(contQuadro > 30)
-%         segundos = segundos+1;
+        segundos = segundos+1;
 %         [secoes1, secoes2] = ocupacaoSecoes(quadro, secoes1, secoes2);
 
         %Guarda o estado anterior das seções%
@@ -106,14 +113,19 @@ while ~isDone(videoReader)
             VagasOcupadas = VagasOcupadas + ocupacaoVagas(vagas, 2, secoes2);
         end
         
-        [num2str(VagasOcupadas), ' vagas ocupadas.']
+%         [num2str(VagasOcupadas), ' vagas ocupadas.']
+        if(VagasOcupadas ~= VagasAntes)
+            [num2str(segundos),' segundos: ', num2str(VagasOcupadas), ' vagas ocupadas.']
+        end
+
+        VagasAntes = VagasOcupadas;
         
         contQuadro = 0;
     end
     %Pinta a imagem com a ocupacao e as secoes%
     out = pintaSecoes(out, secoes1);
     out = pintaSecoes(out, secoes2);
-%     out = pintaVagas(out, vagas, secoes1, secoes2);
+    out = pintaVagas(out, vagas, secoes1, secoes2);
     
     %Configura a imagem pra ferramente opticalflow%
     im = rgb2gray(quadro);
@@ -137,7 +149,7 @@ while ~isDone(videoReader)
         %Se o numero de movimentos foi maior, armazena o movimento novo%
         if(size(areasInteresse,1) > size(finalMovimentos,1))
 %             inicioMovimentos = [l1,l2,c1,c2,centro(1), centro(2)];
-            inicioMovimentos = areasInteresse;
+            inicioMovimentos = [inicioMovimentos;areasInteresse];
         end
         %Pinta os retangulos de azul na imagem de saida%
         for aa = 1:size(areasInteresse,1)
@@ -153,7 +165,7 @@ while ~isDone(videoReader)
 %             secoesAnt1 = secoes1;
 %             secoesAnt2 = secoes2;
             
-          for(k = 1: size(inicioMovimentos,1))
+          for(k = 1:size(inicioMovimentos,1))
             %Se comecou o movimento em uma das areas%
             if(dentroRetangulo(rect1, inicioMovimentos(k,5), inicioMovimentos(k,6)) ~= 0)
 %                 novaSecao = [2, inicioMovimento(3), rect1(2), inicioMovimento(4)-inicioMovimento(3), rect1(4),0];
@@ -217,7 +229,12 @@ while ~isDone(videoReader)
                     VagasOcupadas = VagasOcupadas + ocupacaoVagas(vagas, 2, secoes2);
                 end
                 
-                [num2str(VagasOcupadas), ' vagas ocupadas.']
+%                 [num2str(VagasOcupadas), ' vagas ocupadas.']
+                if(VagasOcupadas ~= VagasAntes)
+                    [num2str(segundos),' segundos: ', num2str(VagasOcupadas), ' vagas ocupadas.']
+                end
+
+                VagasAntes = VagasOcupadas;
 
         end
         
@@ -542,7 +559,7 @@ function ocupadas = ocupacaoVagasSimples(secoes)
                 end
             end
             
-            if(cont >= size(secsVaga,1)/2)
+            if(size(secsVaga,1) > 0 && cont >= size(secsVaga,1)/2)
                ocupadas = ocupadas + 1; 
             end
             
