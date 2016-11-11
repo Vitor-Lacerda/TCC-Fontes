@@ -3,7 +3,7 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('Vazio.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('2Carros.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
@@ -24,9 +24,9 @@ roi2 = floor(roi2);
 %Determina o tamanho das parcelas a serem criadas em cada ROI
 tParcelas = 16;
 %Determina o tamanho da 'amostragem' das parcelas
-amostragem = 18;
+amostragem = 12;
 %Determina o limiar do movimento
-limiar = 220;
+limiar = 200;
 
 %Extrai parcelas quadradas de tamanho tParcelas de cada regiao%
 secoes1 = extraiParcelas(i, roi1, tParcelas);
@@ -470,15 +470,17 @@ function ocupadas = ocupacaoVagasSimples(secoes)
             linhas = colVagas == i;
             linhas = find(linhas);
             secsVaga = secoes(linhas,:);
-            cont = 0;
-            for k = 1:size(secsVaga,1)
-                if(secsVaga(k,1) == 1)
-                    cont = cont + 1;
+            if(size(secsVaga,1)>0)
+                cont = 0;
+                for k = 1:size(secsVaga,1)
+                    if(secsVaga(k,1) == 1)
+                        cont = cont + 1;
+                    end
                 end
-            end
-            
-            if(cont >= size(secsVaga,1)/2)
-               ocupadas = ocupadas + 1; 
+
+                if(cont >= size(secsVaga,1)/2)
+                   ocupadas = ocupadas + 1; 
+                end
             end
             
         end

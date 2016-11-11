@@ -11,7 +11,7 @@ function limitesAreas =  achaAreaInteresseMult(g, distanciaMaxima, minimoImagem,
 %     minimoImagem = 100;
 %     minimoArea = 100;
 
-    areas = zeros(50, 500);
+    areas = zeros(50, 1000);
     limites = zeros(50, 4);
     areasFim = ones(50);
     areasCentros = zeros(50,5);
