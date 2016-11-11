@@ -3,92 +3,61 @@ function programa
 %Inicializacao%
 
 
-videoReader = vision.VideoFileReader('meiocheioEstabilizado.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
+videoReader = vision.VideoFileReader('GOPR0558.mp4','ImageColorSpace','RGB','VideoOutputDataType','uint8');
 converter = vision.ImageDataTypeConverter;
 opticalFlow = vision.OpticalFlow('ReferenceFrameDelay', 1,'Method', 'Lucas-Kanade');
 videoPlayer = vision.VideoPlayer('Name','Estacionamento');
 % shapeInserter = vision.ShapeInserter('Shape','Rectangles');
 
-%%%%%MODO DE MAPEAMENTO%%%%%%%%
-simples = 1;
-
 %Mostra o primeiro quadro pra determinar as regioes onde há vagas%
 i = step(videoReader);
 imshow(i);
-rect1 = getrect;
-rect2 = getrect;
+[x1,y1] = getpts;
+roi1 = [x1,y1];
+[x2,y2] = getpts;
+roi2 = [x2,y2];
 
-rect1 = floor(rect1);
-rect2 = floor(rect2);
-
-% rect1 = [3 4 850 148];
-% rect2 = [3 308 848 172];
-
-
-%Determina o numero de secoes a serem criadas em cada ROI
-
-nsecoes = 30;
-
-%Extrai nsecoes secoes verticais de cada regiao%
-secoes1 = extraiSecoes(i, rect1, nsecoes);
-secoes2 = extraiSecoes(i, rect2, nsecoes);
+roi1 = floor(roi1);
+roi2 = floor(roi2);
 
 
+%Determina o tamanho das parcelas a serem criadas em cada ROI
+tParcelas = 16;
+%Determina o tamanho da 'amostragem' das parcelas
+amostragem = 18;
+%Determina o limiar do movimento
+limiar = 220;
+
+%Extrai parcelas quadradas de tamanho tParcelas de cada regiao%
+secoes1 = extraiParcelas(i, roi1, tParcelas);
+secoes2 = extraiParcelas(i, roi2, tParcelas);
 
 %Determina ocupacao inicial de cada secao%
-secoes1 = ocupacaoSecoes(i, secoes1, 1, size(secoes1, 1));
-secoes2 = ocupacaoSecoes(i, secoes2, 1, size(secoes2, 1));
+secoes1 = ocupacaoSecoes(i, secoes1, amostragem);
+secoes2 = ocupacaoSecoes(i, secoes2, amostragem);
 
-%%%Comeca a tocar o video%%%
+%%Inicializacoes
 contQuadro = 1;
 % segundos = 0;
 analisaMovimento = 0;
 temMovimento = 0;
 
-% %Guarda o estado anterior das seções%
-% secoesAnt1 = secoes1;
-% secoesAnt2 = secoes2;
-
-
-
-
-% comparaSecoes(secoesAnt1, secoes1, segundos, 1);
-% comparaSecoes(secoesAnt2, secoes2, segundos, 2);
-if(simples == 1)
-secoes1 = vagasIniciaisSimples(secoes1, 1);
-secoes2 = vagasIniciaisSimples(secoes2, 2);
-else
-vagas = [];
-vagas = vagasIniciais(vagas, secoes1, 1);
-vagas = vagasIniciais(vagas, secoes2, 2);
-end
-
-
-
 VagasOcupadas = 0;
-if(simples == 1)
-VagasOcupadas = ocupacaoVagasSimples(secoes1);
-VagasOcupadas = VagasOcupadas + ocupacaoVagasSimples(secoes2); 
-else
-VagasOcupadas = ocupacaoVagas(vagas, 1, secoes1);
-VagasOcupadas = VagasOcupadas + ocupacaoVagas(vagas, 2, secoes2);
-end
-[num2str(VagasOcupadas), ' vagas ocupadas.']
-
 
 inicioMovimentos = [];
 finalMovimentos = [];
 
-
+%%%Comeca a tocar o video%%%
 while ~isDone(videoReader)
    quadro = step(videoReader);
 
    out = quadro;
    contQuadro = contQuadro + 1;
-   %A cada segundo(30 quadros) verifica novamente a ocupacao das secoes%
+   
     if (contQuadro > 2)
        analisaMovimento = 1; 
     end
+    
     if(contQuadro > 30)
 %         segundos = segundos+1;
 %         [secoes1, secoes2] = ocupacaoSecoes(quadro, secoes1, secoes2);
@@ -97,42 +66,41 @@ while ~isDone(videoReader)
 %         secoesAnt1 = secoes1;
 %         secoesAnt2 = secoes2;
 
-        secoes1 = ocupacaoSecoes(quadro, secoes1, 1, size(secoes1, 1));
-        secoes2 = ocupacaoSecoes(quadro, secoes2, 1, size(secoes2, 1));
-        if(simples == 1)
-            VagasOcupadas = ocupacaoVagasSimples(secoes1);
-            VagasOcupadas = VagasOcupadas + ocupacaoVagasSimples(secoes2);
-        else
-            VagasOcupadas = ocupacaoVagas(vagas, 1, secoes1);
-            VagasOcupadas = VagasOcupadas + ocupacaoVagas(vagas, 2, secoes2);
-        end
+        secoes1 = ocupacaoSecoes(quadro, secoes1, amostragem);
+        secoes2 = ocupacaoSecoes(quadro, secoes2, amostragem);
+        VagasOcupadas = ocupacaoVagasSimples(secoes1);
+        VagasOcupadas = VagasOcupadas + ocupacaoVagasSimples(secoes2);
         
         [num2str(VagasOcupadas), ' vagas ocupadas.']
-        
         contQuadro = 0;
     end
-    %Pinta a imagem com a ocupacao e as secoes%
-    out = pintaSecoes(out, secoes1);
-    out = pintaSecoes(out, secoes2);
-%     out = pintaVagas(out, vagas, secoes1, secoes2);
     
-    %Configura a imagem pra ferramente opticalflow%
+   out = pintaSecoes(out, secoes1);
+   out = pintaSecoes(out, secoes2);
+        
+        %Configura a imagem pra ferramente opticalflow%
     im = rgb2gray(quadro);
     im = step(converter, im);
     %Usa opticalFlow pra pegar os vetores de movimento da imagem%
     mags = step(opticalFlow, im);
     
 %     mags = abs(components);
-    %Limiariza a imagem. Todos vetores menores que 220 ficam com valor 0%
+    %Limiariza a imagem. Todos vetores menores que limiar ficam com valor 0%
     mags = mags .* 255;
     mags = uint8(mags);
-    mags = threshBinary(mags, 220, 0, 255);
+    mags = threshBinary(mags, limiar, 0, 255);
    %Extrai retangulos referentes aos movimentos na cena%
+     %Extrai retangulos referentes aos movimentos na cena%
    if(analisaMovimento == 1)
     areasInteresse = achaAreaInteresseMult(mags,100, 250,250);
- 
+    %Pinta os retangulos de azul na imagem de saida%
+     for aa = 1:size(areasInteresse,1)
+        lim = areasInteresse(aa,:);
+        out(lim(1):lim(2), lim(3):lim(4), 3) = 255;
+     end
     
-    %Se houve um numero maior ou igual de movimentos que antes%
+     
+     %Se houve um numero maior ou igual de movimentos que antes%
 %     if(centro(1) > 0 && centro(2) > 0)
     if(size(areasInteresse,1) >= size(finalMovimentos,1))
         %Se o numero de movimentos foi maior, armazena o movimento novo%
@@ -140,19 +108,10 @@ while ~isDone(videoReader)
 %             inicioMovimentos = [l1,l2,c1,c2,centro(1), centro(2)];
             inicioMovimentos = areasInteresse;
         end
-        %Pinta os retangulos de azul na imagem de saida%
-        for aa = 1:size(areasInteresse,1)
-            lim = areasInteresse(aa,:);
-            out(lim(1):lim(2), lim(3):lim(4), 3) = 255;
-        end
 
         temMovimento = 1;
     else %caso um movimento tenha sumido%
         if(temMovimento ~= 0)
-          
-%           %Guarda o estado anterior das seções%
-%             secoesAnt1 = secoes1;
-%             secoesAnt2 = secoes2;
             
           for(k = 1: size(inicioMovimentos,1))
             %Se comecou o movimento em uma das areas%
@@ -226,7 +185,10 @@ while ~isDone(videoReader)
     end
     %Atualiza os fins dos movimentos%
     finalMovimentos = areasInteresse;
-   end
+   end 
+  
+   
+    
    step(videoPlayer, out);
    
 end
